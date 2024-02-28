@@ -283,6 +283,7 @@ class InterbotixArmXSInterface:
         moving_time: float = None,
         accel_time: float = None,
         blocking: bool = True,
+        recorded_joint_positions: list = None,
     ) -> None:
         """
         Publish joint positions and block if necessary.
@@ -303,6 +304,8 @@ class InterbotixArmXSInterface:
         self.core.pub_group.publish(joint_commands)
         if blocking:
             self.core.get_clock().sleep_for(Duration(nanoseconds=int(self.moving_time*S_TO_NS)))
+            if recorded_joint_positions is not None:
+                recorded_joint_positions.append(self.core.joint_states.positions[:6])
         if self.iterative_update_fk:
             self._update_Tsb()
 
@@ -400,6 +403,7 @@ class InterbotixArmXSInterface:
         moving_time: float = None,
         accel_time: float = None,
         blocking: bool = True,
+        recorded_joint_positions: list = None,
     ) -> bool:
         """
         Command positions to the arm joints.
@@ -414,7 +418,7 @@ class InterbotixArmXSInterface:
         """
         self.core.get_logger().debug(f'setting {joint_positions=}')
         if self._check_joint_limits(joint_positions):
-            self._publish_commands(joint_positions, moving_time, accel_time, blocking)
+            self._publish_commands(joint_positions, moving_time, accel_time, blocking, recorded_joint_positions)
             return True
         else:
             return False
