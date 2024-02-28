@@ -283,7 +283,7 @@ class InterbotixArmXSInterface:
         moving_time: float = None,
         accel_time: float = None,
         blocking: bool = True,
-        recorded_joint_positions: list = None,
+        recorded_joint_positions: List = None,
     ) -> None:
         """
         Publish joint positions and block if necessary.
@@ -294,6 +294,7 @@ class InterbotixArmXSInterface:
             accelerating/decelerating (must be less than or equal to half the moving_time)
         :param blocking: (optional) whether the function should wait to return control to the user
             until the robot finishes moving
+        :param recorded_joint_positions: (optional) list to record resultant joint positions to
         """
         self.core.get_logger().debug(f'Publishing {positions=}')
         self.set_trajectory_time(moving_time, accel_time)
@@ -305,7 +306,7 @@ class InterbotixArmXSInterface:
         if blocking:
             self.core.get_clock().sleep_for(Duration(nanoseconds=int(self.moving_time*S_TO_NS)))
             if recorded_joint_positions is not None:
-                recorded_joint_positions.append(self.core.joint_states.positions[:6])
+                recorded_joint_positions.append(self.core.joint_states.position[:6])
         if self.iterative_update_fk:
             self._update_Tsb()
 
@@ -403,7 +404,7 @@ class InterbotixArmXSInterface:
         moving_time: float = None,
         accel_time: float = None,
         blocking: bool = True,
-        recorded_joint_positions: list = None,
+        recorded_joint_positions: List = None,
     ) -> bool:
         """
         Command positions to the arm joints.
@@ -414,6 +415,7 @@ class InterbotixArmXSInterface:
             accelerating/decelerating (must be less than or equal to half the moving_time)
         :param blocking: (optional) whether the function should wait to return control to the user
             until the robot finishes moving
+        :param recorded_joint_positions: (optional) list to record resultant joint positions to
         :return: `True` if position was commanded; `False` if it wasn't due to being outside limits
         """
         self.core.get_logger().debug(f'setting {joint_positions=}')
